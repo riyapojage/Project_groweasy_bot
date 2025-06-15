@@ -62,3 +62,30 @@ All logic is driven by a single **businessProfile.json** file. You’ll develop 
 └── examples/ # hot.json, cold.json, invalid.json
 └── docs/
 └── email-template.md # prewritten submission email
+
+## 7. Milestones & Timeline
+- **Day 1:**  
+  - Set up Node.js project & Cursor workspace  
+  - Install deps (`express`, `@anthropic-ai/sdk`, `dotenv`)  
+  - Create `businessProfile.json`  
+  - Build `promptBuilder.js` & test in REPL  
+  - Spin up Express `/chat` endpoint & Claude “hello” call
+- **Day 2:**  
+  - Scaffold React client, wire to `/chat`  
+  - Extend prompt logic for classification  
+  - Track transcript, parse classification JSON  
+  - Persist to `leads.csv`  
+  - Test three lead scenarios (Hot, Cold, Invalid)
+- **Day 3:**  
+  - Add robust error handling (`try/catch`, input validation)  
+  - Write `README.md` and populate `examples/`  
+  - Draft and record 2–3 min demo video (Loom)  
+  - Prepare `docs/email-template.md` and push all commits  
+
+## 8. Success Criteria
+- **Functional demo:** end‑to‑end chat → classification → CSV logging  
+- **Configurable:** change industry/questions/rules via JSON alone  
+- **Documentation:** clear README, examples folder, email template  
+- **Professional polish:** CLI/Postman usage documented, demo video under 3 min
+
+---
