@@ -17,11 +17,23 @@ const businessProfile = JSON.parse(readFileSync('./businessProfile.json', 'utf8'
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// In-memory transcript storage for conversation state
-let transcript = [];
+// CORS middleware to allow React frontend communication
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
 
 // Middleware for parsing JSON requests
 app.use(express.json());
+
+// In-memory transcript storage for conversation state
+let transcript = [];
 
 // Initialize Claude client
 const anthropic = new Anthropic({
