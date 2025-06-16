@@ -1,0 +1,84 @@
+{
+  "industry": "real_estate",
+  "businessName": "GrowEasy Real Estate",
+  "greeting": "Hello! I'm here to help you find your perfect property. Let me ask you a few quick questions to better understand your needs.",
+  "questions": [
+    {
+      "id": "location",
+      "text": "What location are you looking for? (City, neighborhood, or area)",
+      "type": "text",
+      "required": true,
+      "followUp": "Great! {location} is a wonderful area."
+    },
+    {
+      "id": "propertyType", 
+      "text": "What type of property interests you? (Apartment, Villa, Plot, Commercial)",
+      "type": "choice",
+      "options": ["Apartment", "Villa", "Plot", "Commercial", "Other"],
+      "required": true,
+      "followUp": "Perfect! {propertyType} properties are in good demand."
+    },
+    {
+      "id": "budget",
+      "text": "What's your budget range in lakhs? (Please specify a number or range)",
+      "type": "number",
+      "required": true,
+      "followUp": "Thank you! A budget of ₹{budget} lakhs gives us good options."
+    },
+    {
+      "id": "timeline",
+      "text": "When are you planning to buy? (Immediately, 1-3 months, 3-6 months, 6+ months)",
+      "type": "choice", 
+      "options": ["Immediately", "1-3 months", "3-6 months", "6+ months", "Just exploring"],
+      "required": true,
+      "followUp": "Got it! Your timeline of {timeline} helps us prioritize the right properties."
+    }
+  ],
+  "rules": {
+    "hot": {
+      "budgetMinLakhs": 50,
+      "timelineMaxMonths": 3,
+      "description": "High-budget leads with immediate timeline",
+      "keywords": ["immediately", "urgent", "ready to buy", "cash ready", "pre-approved"],
+      "conditions": "budget >= 50 lakhs AND timeline <= 3 months"
+    },
+    "cold": {
+      "keywords": ["just browsing", "not sure", "maybe next year", "just exploring", "no hurry"],
+      "budgetMaxLakhs": 25,
+      "timelineMinMonths": 6,
+      "description": "Low-budget or distant timeline leads",
+      "conditions": "budget < 25 lakhs OR timeline > 6 months OR contains cold keywords"
+    },
+    "invalid": {
+      "keywords": ["spam", "test", "random", "fake"],
+      "description": "Invalid or spam leads",
+      "conditions": "incomplete answers OR contains spam keywords"
+    }
+  },
+  "classification": {
+    "hot": {
+      "priority": "high",
+      "followUpHours": 1,
+      "assignTo": "senior_agent",
+      "message": "Excellent! You seem like a serious buyer. Let me connect you with our senior property consultant who can show you the best options in your budget and timeline."
+    },
+    "cold": {
+      "priority": "low", 
+      "followUpHours": 72,
+      "assignTo": "junior_agent",
+      "message": "Thank you for your interest! I'll add you to our newsletter and keep you updated with new properties that match your criteria."
+    },
+    "invalid": {
+      "priority": "none",
+      "followUpHours": 0,
+      "assignTo": null,
+      "message": "Thank you for your time. Please feel free to reach out when you're ready to seriously explore property options."
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2025-06-15",
+    "createdBy": "GrowEasy Team",
+    "industry_keywords": ["property", "real estate", "buy", "investment", "home", "apartment", "villa"]
+  }
+} 
