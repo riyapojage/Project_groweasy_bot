@@ -381,5 +381,3 @@ npm start
 MIT License - See LICENSE file for details.
 
 ---
-
-**Built with ❤️ for intelligent lead qualification**
