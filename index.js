@@ -8,7 +8,7 @@ import 'dotenv/config';
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildPrompt, buildClassificationPrompt } from './promptBuilder.js';
-import { readFileSync } from 'fs';
+import { readFileSync, appendFileSync, existsSync } from 'fs';
 
 // Load business profile configuration
 const businessProfile = JSON.parse(readFileSync('./businessProfile.json', 'utf8'));
@@ -16,6 +16,48 @@ const businessProfile = JSON.parse(readFileSync('./businessProfile.json', 'utf8'
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// CSV file path for leads
+const LEADS_CSV_PATH = './leads.csv';
+
+// Function to initialize CSV file with headers if it doesn't exist
+function initializeCSV() {
+    if (!existsSync(LEADS_CSV_PATH)) {
+        const headers = 'timestamp,status,confidence,reasoning,location,budget,timeline,propertyType,transcriptLength,fullTranscript\n';
+        appendFileSync(LEADS_CSV_PATH, headers);
+        console.log('📊 Created leads.csv with headers');
+    }
+}
+
+// Function to save lead to CSV
+function saveLeadToCSV(timestamp, transcript, classification) {
+    try {
+        // Extract metadata with safe defaults
+        const metadata = classification.metadata || {};
+        const location = (metadata.location || '').replace(/"/g, '""'); // Escape quotes
+        const budget = (metadata.budget || '').replace(/"/g, '""');
+        const timeline = (metadata.timeline || '').replace(/"/g, '""');
+        const propertyType = (metadata.propertyType || '').replace(/"/g, '""');
+        
+        // Convert transcript to string and escape quotes
+        const transcriptString = JSON.stringify(transcript).replace(/"/g, '""');
+        
+        // Create CSV row
+        const csvRow = `"${timestamp}","${classification.status}","${classification.confidence || 0}","${(classification.reasoning || '').replace(/"/g, '""')}","${location}","${budget}","${timeline}","${propertyType}","${transcript.length}","${transcriptString}"\n`;
+        
+        // Append to CSV file
+        appendFileSync(LEADS_CSV_PATH, csvRow);
+        
+        console.log(`💾 Lead saved to CSV: ${classification.status} lead at ${timestamp}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving lead to CSV:', error);
+        return false;
+    }
+}
+
+// Initialize CSV file on startup
+initializeCSV();
 
 // CORS middleware to allow React frontend communication
 app.use((req, res, next) => {
@@ -149,6 +191,9 @@ app.post('/chat', async (req, res) => {
             });
             
             console.log(`✅ Lead classified as: ${classification.status}`);
+            
+            // Save lead to CSV
+            const csvSaved = saveLeadToCSV(new Date().toISOString(), transcript, classification);
             
             // Return final response with classification
             return res.json({
