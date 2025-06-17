@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-06-17T07:29:16.410Z",
+  "status": "invalid",
+  "confidence": 0.95,
+  "reasoning": "Initial messages were nonsensical/spam-like (sjskx, AJAJFKlw, xyz123). Though location was eventually provided, the overall conversation pattern suggests a non-serious or test inquiry",
+  "metadata": {
+    "location": "delhi",
+    "budget": "",
+    "timeline": "",
+    "propertyType": ""
+  },
+  "transcriptLength": 10,
+  "conversation_summary": {
+    "lead_quality": "Invalid/Spam",
+    "follow_up_priority": "None",
+    "recommended_action": "No follow-up required",
+    "sales_notes": "Spam or test messages, not a genuine lead"
+  },
+  "sample_conversation": [
+    {
+      "role": "user",
+      "content": "sjskx",
+      "timestamp": "2025-06-17T07:27:58.070Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! I'm Sarah from GrowEasy Real Estate. I notice your message might have been sent by accident. I'm here to help you find your ideal property! To get started, could you please let me know which location you're interested in? This could be a specific city, neighborhood, or area.",
+      "timestamp": "2025-06-17T07:28:01.139Z"
+    },
+    {
+      "role": "user",
+      "content": "idontknow",
+      "timestamp": "2025-06-17T07:28:11.976Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I understand it can be overwhelming to start the property search! Would it help if I asked which city or general area you spend most of your time in? That could be a good starting point for us to explore suitable locations together.",
+      "timestamp": "2025-06-17T07:28:15.476Z"
+    },
+    {
+      "role": "user",
+      "content": "AJAJFKlw",
+      "timestamp": "2025-06-17T07:28:25.542Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I notice you might be having trouble typing or communicating. Let me make this easier: I'm here to help you find a property, but I need to understand your basic requirements. Could we start fresh? Please just tell me which city you're looking to buy property in? For example: Mumbai, Delhi, Bangalore, etc.",
+      "timestamp": "2025-06-17T07:28:31.453Z"
+    },
+    {
+      "role": "user",
+      "content": "xyz123",
+      "timestamp": "2025-06-17T07:29:00.338Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I notice we're having trouble communicating clearly. Let me be direct but friendly: I'm here to help you find real estate, but I need some real information to assist you properly. Could you please tell me an actual city where you're looking to buy property?",
+      "timestamp": "2025-06-17T07:29:04.212Z"
+    },
+    {
+      "role": "user",
+      "content": "delhi",
+      "timestamp": "2025-06-17T07:29:13.150Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Thank you for your time. Please feel free to reach out when you're ready to seriously explore property options.",
+      "timestamp": "2025-06-17T07:29:16.410Z"
+    }
+  ]
+} 

@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-06-17T06:55:12.002Z",
+  "status": "hot",
+  "confidence": 0.95,
+  "reasoning": "High budget (100 lakhs > 50 lakhs threshold) and immediate timeline (3 months matches hot lead criteria)",
+  "metadata": {
+    "location": "Bhubaneswar",
+    "budget": "100 lakhs",
+    "timeline": "3 months",
+    "propertyType": "Villa"
+  },
+  "transcriptLength": 10,
+  "conversation_summary": {
+    "lead_quality": "Excellent prospect",
+    "follow_up_priority": "Immediate (within 1 hour)",
+    "recommended_action": "Connect with senior property consultant",
+    "sales_notes": "Serious buyer with sufficient budget and immediate timeline"
+  },
+  "sample_conversation": [
+    {
+      "role": "user",
+      "content": "I want to buy property",
+      "timestamp": "2025-06-17T06:54:05.976Z"
+    },
+    {
+      "role": "assistant", 
+      "content": "Hi! Thanks for reaching out to GrowEasy Real Estate. I'd be happy to help you find the perfect property. To get started, could you let me know which location you're interested in?",
+      "timestamp": "2025-06-17T06:54:09.283Z"
+    },
+    {
+      "role": "user",
+      "content": "I want it in Bhubaneswar",
+      "timestamp": "2025-06-17T06:54:26.672Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! Bhubaneswar is a wonderful area. Could you tell me what type of property you're interested in? Are you looking for an Apartment, Villa, Plot, or Commercial property?",
+      "timestamp": "2025-06-17T06:54:29.361Z"
+    },
+    {
+      "role": "user",
+      "content": "Villa",
+      "timestamp": "2025-06-17T06:54:39.053Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Perfect! Villa properties are in good demand. Could you share your budget range in lakhs?",
+      "timestamp": "2025-06-17T06:54:42.011Z"
+    },
+    {
+      "role": "user",
+      "content": "100 lakhs",
+      "timestamp": "2025-06-17T06:54:51.535Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Thank you! A budget of ₹100 lakhs gives us good options. When are you planning to make the purchase?",
+      "timestamp": "2025-06-17T06:54:57.300Z"
+    },
+    {
+      "role": "user",
+      "content": "3 months",
+      "timestamp": "2025-06-17T06:55:08.854Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Excellent! You seem like a serious buyer. Let me connect you with our senior property consultant who can show you the best options in your budget and timeline.",
+      "timestamp": "2025-06-17T06:55:12.001Z"
+    }
+  ]
+} 

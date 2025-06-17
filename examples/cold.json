@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-06-17T07:27:27.028Z",
+  "status": "cold",
+  "confidence": 0.95,
+  "reasoning": "Multiple cold lead indicators: 'just browsing', 'not really sure', 'maybe next year', 'no hurry' keywords present. Budget (20L) falls in cold lead range (<25L). Timeline is distant (next year).",
+  "metadata": {
+    "location": "Delhi",
+    "budget": "20 lakhs",
+    "timeline": "next year",
+    "propertyType": "Plots"
+  },
+  "transcriptLength": 10,
+  "conversation_summary": {
+    "lead_quality": "Low priority prospect",
+    "follow_up_priority": "Low (within 72 hours)",
+    "recommended_action": "Add to newsletter, periodic follow-up",
+    "sales_notes": "Browsing stage, budget constraints, distant timeline"
+  },
+  "sample_conversation": [
+    {
+      "role": "user",
+      "content": "Just browsing, not really sure",
+      "timestamp": "2025-06-17T07:26:20.173Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hi! Thanks for reaching out to GrowEasy Real Estate. I understand you're just browsing - that's absolutely fine! We're here to help you explore your options. To better assist you, I'd love to learn a bit more about what you're looking for. Let's start with location - which area or city are you interested in exploring?",
+      "timestamp": "2025-06-17T07:26:26.009Z"
+    },
+    {
+      "role": "user",
+      "content": "delhi",
+      "timestamp": "2025-06-17T07:26:53.240Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! Delhi is a wonderful area. The market there has been quite active lately. What type of property are you interested in looking at? We deal with apartments, villas, plots, and commercial properties.",
+      "timestamp": "2025-06-17T07:26:55.270Z"
+    },
+    {
+      "role": "user",
+      "content": "plots",
+      "timestamp": "2025-06-17T07:27:03.820Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Perfect! Plot properties are in good demand. They're a great investment option in Delhi. Could you share your budget range in lakhs? This will help me identify suitable plots within your price point.",
+      "timestamp": "2025-06-17T07:27:06.151Z"
+    },
+    {
+      "role": "user",
+      "content": "20 lakhs",
+      "timestamp": "2025-06-17T07:27:13.479Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Thank you! A budget of ₹20 lakhs gives us good options to explore in Delhi. When are you planning to make your purchase? Are you looking to buy immediately, within 1-3 months, 3-6 months, or are you just exploring for now?",
+      "timestamp": "2025-06-17T07:27:16.495Z"
+    },
+    {
+      "role": "user",
+      "content": "Maybe next year, no hurry",
+      "timestamp": "2025-06-17T07:27:23.535Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Thank you for your interest! I'll add you to our newsletter and keep you updated with new properties that match your criteria.",
+      "timestamp": "2025-06-17T07:27:27.028Z"
+    }
+  ]
+} 

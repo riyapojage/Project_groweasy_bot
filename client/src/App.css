@@ -562,3 +562,100 @@ body {
 .message-input:focus-visible {
   outline: none;
 }
+
+/* Error message styles */
+.message-bubble.assistant[data-error="true"],
+.message-wrapper .message-bubble:has(.message-content:contains("⚠️")) {
+  background: linear-gradient(135deg, #fee, #fdd);
+  border-left: 4px solid #e74c3c;
+  color: #c0392b;
+}
+
+.dark-mode .message-bubble.assistant[data-error="true"],
+.dark-mode .message-wrapper .message-bubble:has(.message-content:contains("⚠️")) {
+  background: linear-gradient(135deg, #4a1818, #3a1515);
+  border-left: 4px solid #e74c3c;
+  color: #ff6b6b;
+}
+
+/* Error icon styling */
+.message-content:contains("⚠️") {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Network status indicator */
+.network-status {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.network-status.online {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.network-status.offline {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.dark-mode .network-status.online {
+  background: #1e3a1e;
+  color: #4caf50;
+  border: 1px solid #2a4f2a;
+}
+
+.dark-mode .network-status.offline {
+  background: #3a1e1e;
+  color: #ff6b6b;
+  border: 1px solid #4f2a2a;
+}
+
+/* Loading error state */
+.message-bubble.loading.error {
+  background: linear-gradient(135deg, #fee, #fdd);
+  border-left: 4px solid #e74c3c;
+}
+
+.dark-mode .message-bubble.loading.error {
+  background: linear-gradient(135deg, #4a1818, #3a1515);
+  color: #ff6b6b;
+}
+
+/* Retry button styling */
+.retry-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.dark-mode .retry-button {
+  background: #ff6b6b;
+  color: #1a1a1a;
+}
+
+.dark-mode .retry-button:hover {
+  background: #ff5252;
+}
