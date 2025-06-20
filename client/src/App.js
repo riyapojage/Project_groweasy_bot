@@ -60,7 +60,11 @@ const App = () => {
 
       let response;
       try {
-        response = await fetch('http://localhost:3000/chat', {
+        const apiUrl = process.env.NODE_ENV === 'production' 
+          ? '/.netlify/functions/chat' 
+          : 'http://localhost:3000/chat';
+        
+        response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -170,7 +174,11 @@ const App = () => {
     try {
       console.log('🔄 Resetting conversation...');
       
-      const response = await fetch('http://localhost:3000/reset', { 
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? '/.netlify/functions/reset' 
+        : 'http://localhost:3000/reset';
+      
+      const response = await fetch(apiUrl, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

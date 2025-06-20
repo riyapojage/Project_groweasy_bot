@@ -7,11 +7,11 @@ import 'dotenv/config';
 // Import required packages
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
-import { buildPrompt, buildClassificationPrompt } from './promptBuilder.js';
+import { buildPrompt, buildClassificationPrompt, buildConversationPrompt, loadBusinessProfile } from './promptBuilder.js';
 import { readFileSync, appendFileSync, existsSync } from 'fs';
 
 // Load business profile configuration
-const businessProfile = JSON.parse(readFileSync('./businessProfile.json', 'utf8'));
+const businessProfile = loadBusinessProfile();
 
 // Initialize Express app
 const app = express();
@@ -280,10 +280,10 @@ app.post('/chat', async (req, res) => {
             console.log('🎯 All questions answered, starting classification...');
             
             try {
-                // Build classification prompt with error handling
+                // Build enhanced classification prompt with error handling
                 let classificationPrompt;
                 try {
-                    classificationPrompt = buildClassificationPrompt(transcript);
+                    classificationPrompt = buildClassificationPrompt(transcript, businessProfile);
                 } catch (promptError) {
                     console.error('❌ Error building classification prompt:', promptError);
                     return res.status(500).json({
@@ -346,9 +346,21 @@ app.post('/chat', async (req, res) => {
                     // Attempt to parse JSON
                     classification = JSON.parse(classificationText);
                     
-                    // Validate classification structure
-                    if (!classification.status || !['hot', 'cold', 'invalid'].includes(classification.status.toLowerCase())) {
+                    // Validate classification structure (handle both old and new formats)
+                    const status = classification.status || classification.classification;
+                    const validStatuses = ['hot', 'cold', 'invalid', 'hot_premium', 'hot_standard', 'warm_nurture', 'cold_long_term', 'invalid_spam'];
+                    
+                    if (!status || !validStatuses.some(s => status.toLowerCase().includes(s.toLowerCase()))) {
                         throw new Error('Invalid classification status');
+                    }
+                    
+                    // Normalize status to old format for compatibility
+                    if (status.includes('hot')) {
+                        classification.status = 'hot';
+                    } else if (status.includes('cold') || status.includes('warm')) {
+                        classification.status = 'cold';
+                    } else if (status.includes('invalid')) {
+                        classification.status = 'invalid';
                     }
                     
                     console.log('✅ Classification parsed successfully:', classification.status);
@@ -435,10 +447,10 @@ app.post('/chat', async (req, res) => {
             console.log('💬 Continuing conversation...');
             
             try {
-                // Build conversation prompt with error handling
+                // Build enhanced conversation prompt with error handling
                 let conversationPrompt;
                 try {
-                    conversationPrompt = buildPrompt(transcript);
+                    conversationPrompt = buildConversationPrompt(transcript, businessProfile);
                 } catch (promptError) {
                     console.error('❌ Error building conversation prompt:', promptError);
                     return res.status(500).json({
