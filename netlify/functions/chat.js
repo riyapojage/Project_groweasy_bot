@@ -148,11 +148,28 @@ exports.handler = async (event, context) => {
     };
     transcript.push(assistantMessage);
 
-    // Check if conversation should end (simple heuristic)
-    const shouldClassify = transcript.length >= 8 || 
+    // Check if conversation should end - only after gathering all criteria
+    const shouldClassify = checkIfAllCriteriaGathered(transcript, businessProfile) ||
+                          transcript.length >= 16 || // Allow more exchanges
                           claudeReply.toLowerCase().includes('thank') ||
                           claudeReply.toLowerCase().includes('contact') ||
                           claudeReply.toLowerCase().includes('wrap up');
+
+    // Helper function to check if all criteria are gathered
+    function checkIfAllCriteriaGathered(transcript, businessProfile) {
+      const conversationText = transcript.map(msg => msg.content).join(' ').toLowerCase();
+      const criteria = Object.keys(businessProfile.qualificationCriteria);
+      
+      // Check if conversation contains information about each criterion
+      const hasBudget = /budget|price|cost|money|lakh|crore|rupee|₹|\$/.test(conversationText);
+      const hasTimeline = /timeline|time|month|year|soon|urgent|when|by/.test(conversationText);
+      const hasLocation = /location|area|city|place|where/.test(conversationText);
+      const hasPropertyType = /apartment|villa|house|flat|bhk|commercial|office|shop/.test(conversationText);
+      
+      // Only classify if we have at least 3 out of 4 criteria or conversation is long enough
+      const criteriaCount = [hasBudget, hasTimeline, hasLocation, hasPropertyType].filter(Boolean).length;
+      return criteriaCount >= 3 || transcript.length >= 12;
+    }
 
     let classification = null;
     let isComplete = false;

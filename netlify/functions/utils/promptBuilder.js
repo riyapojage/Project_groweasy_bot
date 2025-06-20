@@ -108,12 +108,35 @@ function buildConversationPrompt(transcript, businessProfile) {
         `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
     ).join('\n');
     
+    // Analyze what information we still need
+    const conversationText = transcript.map(msg => msg.content).join(' ').toLowerCase();
+    const stillNeed = [];
+    
+    if (!/budget|price|cost|money|lakh|crore|rupee|₹|\$/.test(conversationText)) {
+        stillNeed.push('budget');
+    }
+    if (!/timeline|time|month|year|soon|urgent|when|by/.test(conversationText)) {
+        stillNeed.push('timeline');
+    }
+    if (!/location|area|city|place|where/.test(conversationText)) {
+        stillNeed.push('location');
+    }
+    if (!/apartment|villa|house|flat|bhk|commercial|office|shop/.test(conversationText)) {
+        stillNeed.push('property type');
+    }
+    
+    const guidanceText = stillNeed.length > 0 
+        ? `IMPORTANT: You still need to ask about: ${stillNeed.join(', ')}. Focus on gathering this information before concluding.`
+        : `You have gathered sufficient information. You may wrap up the conversation politely.`;
+    
     return `${basePrompt}
 
 CONVERSATION HISTORY:
 ${conversationHistory}
 
-Continue the conversation naturally. If you have gathered sufficient information for qualification, politely wrap up the conversation and thank them for their interest.`;
+${guidanceText}
+
+Continue the conversation naturally, asking one question at a time.`;
 }
 
 module.exports = {
