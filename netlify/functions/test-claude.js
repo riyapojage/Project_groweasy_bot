@@ -1,8 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+const Anthropic = require('@anthropic-ai/sdk');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -22,6 +18,14 @@ exports.handler = async (event, context) => {
 
   try {
     console.log('🧪 Testing Claude connection...');
+    
+    if (!process.env.CLAUDE_API_KEY) {
+      throw new Error('Claude API key not configured');
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.CLAUDE_API_KEY,
+    });
     
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',

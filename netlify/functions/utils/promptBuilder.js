@@ -1,19 +1,29 @@
 // GrowEasy Prompt Builder
 // =====================
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { readFileSync } = require('fs');
+const { join } = require('path');
 
 // Load business profile from JSON file
-export function loadBusinessProfile() {
+function loadBusinessProfile() {
     try {
-        const filePath = join(process.cwd(), 'businessProfile.json');
-        const data = readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
+        // Try multiple possible paths for business profile
+        const possiblePaths = [
+            join(__dirname, '../businessProfile.json'),
+            join(process.cwd(), 'businessProfile.json'),
+            join(process.cwd(), 'netlify/functions/businessProfile.json')
+        ];
+        
+        for (const filePath of possiblePaths) {
+            try {
+                const data = readFileSync(filePath, 'utf8');
+                return JSON.parse(data);
+            } catch (err) {
+                continue; // Try next path
+            }
+        }
+        
+        throw new Error('Business profile not found in any expected location');
     } catch (error) {
         console.error('❌ Failed to load business profile:', error);
         return getDefaultBusinessProfile();
@@ -36,7 +46,7 @@ function getDefaultBusinessProfile() {
 }
 
 // Build the main conversation prompt
-export function buildPrompt(businessProfile) {
+function buildPrompt(businessProfile) {
     return `You are a helpful lead qualification chatbot for ${businessProfile.companyName}, a company in the ${businessProfile.industry} industry.
 
 Your primary goal is to qualify leads by gathering key information through natural conversation.
@@ -59,7 +69,7 @@ Remember: Your goal is to qualify the lead, not to provide extensive consulting.
 }
 
 // Build classification prompt for lead scoring
-export function buildClassificationPrompt(transcript, businessProfile) {
+function buildClassificationPrompt(transcript, businessProfile) {
     const criteria = Object.keys(businessProfile.qualificationCriteria);
     
     return `Analyze this conversation transcript and classify the lead quality.
@@ -92,7 +102,7 @@ CLASSIFICATION RULES:
 }
 
 // Build conversation prompt with context
-export function buildConversationPrompt(transcript, businessProfile) {
+function buildConversationPrompt(transcript, businessProfile) {
     const basePrompt = buildPrompt(businessProfile);
     const conversationHistory = transcript.map(msg => 
         `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
@@ -104,4 +114,11 @@ CONVERSATION HISTORY:
 ${conversationHistory}
 
 Continue the conversation naturally. If you have gathered sufficient information for qualification, politely wrap up the conversation and thank them for their interest.`;
-} 
+}
+
+module.exports = {
+    loadBusinessProfile,
+    buildPrompt,
+    buildClassificationPrompt,
+    buildConversationPrompt
+}; 

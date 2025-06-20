@@ -1,17 +1,51 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { buildConversationPrompt, buildClassificationPrompt, loadBusinessProfile } from './utils/promptBuilder.js';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+const Anthropic = require('@anthropic-ai/sdk');
+const { buildConversationPrompt, buildClassificationPrompt, loadBusinessProfile } = require('./utils/promptBuilder.js');
 
 // In-memory transcript storage (in production, use a database)
 let transcript = [];
 
-// Load business profile
-const businessProfile = loadBusinessProfile();
-
 exports.handler = async (event, context) => {
+  // Initialize Claude client with API key check
+  if (!process.env.CLAUDE_API_KEY) {
+    console.error('❌ Claude API key not found in environment variables');
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        error: 'Service configuration error',
+        code: 'AUTH_ERROR'
+      })
+    };
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: process.env.CLAUDE_API_KEY,
+  });
+
+  // Load business profile
+  let businessProfile;
+  try {
+    businessProfile = loadBusinessProfile();
+  } catch (error) {
+    console.error('❌ Failed to load business profile:', error);
+    businessProfile = {
+      companyName: "GrowEasy Real Estate",
+      industry: "Real Estate",
+      targetAudience: "Property buyers and sellers",
+      qualificationCriteria: {
+        budget: "Must have budget information",
+        timeline: "Must have timeline for purchase/sale",
+        location: "Must specify preferred location",
+        propertyType: "Must indicate property type interest"
+      }
+    };
+  }
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
