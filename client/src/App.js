@@ -64,15 +64,25 @@ const App = () => {
           ? '/.netlify/functions/chat' 
           : 'http://localhost:3000/chat';
         
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
         response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ message: userMessage.content }),
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
       } catch (networkError) {
         console.error('Network error:', networkError);
+        if (networkError.name === 'AbortError') {
+          throw new Error('Request timed out. The server might be busy. Please try again.');
+        }
         throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
       }
 
@@ -135,6 +145,8 @@ const App = () => {
           userFriendlyError = 'Message is too long. Please keep it shorter.';
         } else if (data.code === 'EMPTY_MESSAGE') {
           userFriendlyError = 'Please enter a message.';
+        } else if (data.code === 'TIMEOUT_ERROR') {
+          userFriendlyError = 'Request timed out. Please try again.';
         }
         
         throw new Error(userFriendlyError);
@@ -178,12 +190,19 @@ const App = () => {
         ? '/.netlify/functions/reset' 
         : 'http://localhost:3000/reset';
       
+      // Add timeout for reset as well
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for reset
+      
       const response = await fetch(apiUrl, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Reset failed with status: ${response.status}`);

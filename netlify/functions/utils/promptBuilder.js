@@ -139,9 +139,47 @@ ${guidanceText}
 Continue the conversation naturally, asking one question at a time.`;
 }
 
+// Natural conversation prompt that creates engaging discussions
+function buildNaturalConversationPrompt(transcript, businessProfile) {
+    const persona = businessProfile.agentPersona || businessProfile;
+    const agentName = persona.name || "Priya";
+    const experience = persona.experience || "8+ years in real estate";
+    
+    // Analyze conversation depth and what's been covered
+    const conversationDepth = analyzeConversationDepth(transcript);
+    const phase = determineConversationPhase(transcript, conversationDepth);
+    
+    const systemPrompt = `You are ${agentName}, a senior real estate consultant with ${experience}. You're having a natural conversation with a potential property buyer.
+
+RESPONSE GUIDELINES:
+• Keep responses short (2-3 sentences maximum)
+• Be conversational and friendly, not formal or verbose
+• Ask ONE clear question at a time
+• Respond naturally to what they said
+• Show genuine interest without being overwhelming
+• NEVER include instructional notes or meta-commentary in your response
+
+CONVERSATION STYLE:
+• Warm and helpful, like a knowledgeable friend
+• Focus on understanding their needs
+• Share brief insights when relevant
+• Build trust through genuine conversation
+
+CURRENT PHASE: ${phase}
+${getPhaseSpecificGuidance(phase, conversationDepth)}
+
+CONVERSATION:
+${transcript.map(msg => `${msg.role === 'user' ? 'Client' : agentName}: ${msg.content}`).join('\n')}
+
+Respond naturally and keep it brief (2-3 sentences max). Ask one meaningful question.`;
+
+    return systemPrompt;
+}
+
 module.exports = {
     loadBusinessProfile,
     buildPrompt,
     buildClassificationPrompt,
-    buildConversationPrompt
+    buildConversationPrompt,
+    buildNaturalConversationPrompt
 }; 

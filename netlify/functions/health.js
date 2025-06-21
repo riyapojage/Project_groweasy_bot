@@ -15,11 +15,18 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    const hasApiKey = !!process.env.CLAUDE_API_KEY;
+    const apiKeyPrefix = process.env.CLAUDE_API_KEY ? process.env.CLAUDE_API_KEY.substring(0, 8) + '...' : 'Not found';
+    
     const healthInfo = {
       message: 'GrowEasy Chatbot Server is running!',
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version: '2.0.0',
+      apiKey: {
+        configured: hasApiKey,
+        prefix: hasApiKey ? apiKeyPrefix : 'Not configured'
+      },
       environment: {
         node: process.version,
         platform: process.platform

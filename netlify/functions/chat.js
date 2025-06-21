@@ -124,7 +124,7 @@ exports.handler = async (event, context) => {
     // Get Claude's response
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
+      max_tokens: 300, // Reduced from 1000 to encourage shorter responses
       messages: [
         {
           role: 'user',
@@ -138,7 +138,10 @@ exports.handler = async (event, context) => {
       throw new Error('Invalid response from Claude');
     }
 
-    const claudeReply = response.content[0].text.trim();
+    let claudeReply = response.content[0].text.trim();
+    
+    // Filter out any backend/instructional text that might leak through
+    claudeReply = cleanResponseText(claudeReply);
 
     // Add Claude's response to transcript
     const assistantMessage = {
@@ -238,6 +241,10 @@ exports.handler = async (event, context) => {
       errorCode = 'INVALID_JSON';
       errorMessage = 'Invalid request format';
       statusCode = 400;
+    } else if (error.message && error.message.includes('timeout')) {
+      errorCode = 'TIMEOUT_ERROR';
+      errorMessage = 'Request timed out, please try again';
+      statusCode = 504;
     }
 
     return {
@@ -250,4 +257,46 @@ exports.handler = async (event, context) => {
       })
     };
   }
-}; 
+};
+
+// Clean response text to remove any backend/instructional content
+function cleanResponseText(text) {
+  // Remove common backend phrases that might leak through
+  const backendPhrases = [
+    /\*?Note:.*?\*/gi,
+    /The question is contextualized and open-ended.*$/gi,
+    /encouraging them to share more about their circumstances\.?$/gi,
+    /\[.*?\]/g, // Remove any bracketed instructions
+    /\*\*.*?\*\*/g, // Remove any bold markdown
+    /\*.*?\*/g, // Remove any italic markdown
+    /FOCUS:.*$/gmi, // Remove any focus instructions
+    /CURRENT.*?:.*$/gmi, // Remove any current phase indicators
+  ];
+  
+  let cleaned = text;
+  backendPhrases.forEach(phrase => {
+    cleaned = cleaned.replace(phrase, '').trim();
+  });
+  
+  // Remove any double spaces and clean up
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  
+  // If the response is too long, truncate to a reasonable length
+  if (cleaned.length > 300) {
+    // Find the last complete sentence within 300 characters
+    const truncated = cleaned.substring(0, 300);
+    const lastPeriod = truncated.lastIndexOf('.');
+    const lastQuestion = truncated.lastIndexOf('?');
+    const lastExclamation = truncated.lastIndexOf('!');
+    
+    const lastSentenceEnd = Math.max(lastPeriod, lastQuestion, lastExclamation);
+    
+    if (lastSentenceEnd > 200) {
+      cleaned = truncated.substring(0, lastSentenceEnd + 1);
+    } else {
+      cleaned = truncated + '...';
+    }
+  }
+  
+  return cleaned;
+} 
