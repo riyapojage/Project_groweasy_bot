@@ -176,10 +176,84 @@ Respond naturally and keep it brief (2-3 sentences max). Ask one meaningful ques
     return systemPrompt;
 }
 
+// Analyze how deep and natural the conversation has been
+function analyzeConversationDepth(transcript) {
+    const conversationText = transcript.map(msg => msg.content).join(' ').toLowerCase();
+    
+    // Check what essential information has been naturally discussed
+    const coverage = {
+        budget: /budget|price|cost|afford|lakh|crore|rupee|₹|\$|spend/.test(conversationText),
+        location: /location|area|city|place|where|neighborhood|locality/.test(conversationText),
+        property_type: /apartment|villa|house|flat|bhk|commercial|office|shop|type|bedroom/.test(conversationText),
+        timeline: /timeline|time|month|year|soon|urgent|when|move|buy/.test(conversationText),
+        motivation: /why|reason|need|family|work|investment|upgrade|first|home/.test(conversationText),
+        lifestyle: /lifestyle|work|commute|family|children|parents|routine/.test(conversationText),
+        preferences: /prefer|want|need|must|important|priority/.test(conversationText)
+    };
+    
+    const coverageCount = Object.values(coverage).filter(Boolean).length;
+    const avgResponseLength = transcript.filter(msg => msg.role === 'user').reduce((sum, msg) => sum + msg.content.split(' ').length, 0) / Math.max(1, transcript.filter(msg => msg.role === 'user').length);
+    
+    return {
+        coverage,
+        coverageCount,
+        totalExchanges: Math.floor(transcript.length / 2),
+        avgUserResponseLength: avgResponseLength,
+        conversationQuality: avgResponseLength > 8 ? 'detailed' : avgResponseLength > 4 ? 'moderate' : 'brief'
+    };
+}
+
+// Determine what phase of conversation we're in
+function determineConversationPhase(transcript, depth) {
+    const exchanges = Math.floor(transcript.length / 2);
+    
+    if (exchanges <= 2) return 'opening';
+    if (exchanges <= 4) return 'rapport_building';
+    if (depth.coverageCount < 3) return 'discovery';
+    if (depth.coverageCount < 5) return 'deep_qualification';
+    return 'closing';
+}
+
+// Phase-specific conversation guidance
+function getPhaseSpecificGuidance(phase, depth) {
+    switch (phase) {
+        case 'opening':
+            return `Ask what brings them to property search today. Keep it warm and brief.`;
+        
+        case 'rapport_building':
+            return `Build trust. Ask about their current situation. Stay conversational.`;
+        
+        case 'discovery':
+            return `Explore their needs naturally. Missing: ${getMissingAreas(depth.coverage).join(', ')}.`;
+        
+        case 'deep_qualification':
+            return `Get specific details. Share brief insights. Missing: ${getMissingAreas(depth.coverage).join(', ')}.`;
+        
+        case 'closing':
+            return `Wrap up naturally. Offer next steps. Keep it enthusiastic but brief.`;
+        
+        default:
+            return `Have a natural, brief conversation.`;
+    }
+}
+
+// Identify missing areas of information
+function getMissingAreas(coverage) {
+    const missing = [];
+    if (!coverage.budget) missing.push('budget discussion');
+    if (!coverage.location) missing.push('location preferences');
+    if (!coverage.property_type) missing.push('property type');
+    if (!coverage.timeline) missing.push('timeline');
+    if (!coverage.motivation) missing.push('motivation/purpose');
+    return missing;
+}
+
 module.exports = {
     loadBusinessProfile,
     buildPrompt,
     buildClassificationPrompt,
     buildConversationPrompt,
-    buildNaturalConversationPrompt
+    buildNaturalConversationPrompt,
+    analyzeConversationDepth,
+    determineConversationPhase
 }; 

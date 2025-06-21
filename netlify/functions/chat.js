@@ -1,5 +1,12 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { buildConversationPrompt, buildClassificationPrompt, loadBusinessProfile } = require('./utils/promptBuilder.js');
+const { 
+  buildConversationPrompt, 
+  buildAdvancedClassificationPrompt, 
+  buildNaturalConversationPrompt,
+  loadBusinessProfile,
+  analyzeConversationDepth,
+  determineConversationPhase
+} = require('./utils/promptBuilder.js');
 
 // In-memory transcript storage (in production, use a database)
 let transcript = [];
@@ -118,8 +125,8 @@ exports.handler = async (event, context) => {
     };
     transcript.push(userMessage);
 
-    // Build conversation prompt
-    const conversationPrompt = buildConversationPrompt(transcript, businessProfile);
+    // Build conversation prompt using the new natural system
+    const conversationPrompt = buildNaturalConversationPrompt(transcript, businessProfile);
 
     // Get Claude's response
     const response = await anthropic.messages.create({
@@ -263,14 +270,17 @@ exports.handler = async (event, context) => {
 function cleanResponseText(text) {
   // Remove common backend phrases that might leak through
   const backendPhrases = [
-    /\*?Note:.*?\*/gi,
+    /\*[^*]*\*/g, // Remove ALL text between asterisks like *warm tone* and *Note: ...*
+    /Note:.*?$/gmi, // Remove Note: lines
     /The question is contextualized and open-ended.*$/gi,
     /encouraging them to share more about their circumstances\.?$/gi,
     /\[.*?\]/g, // Remove any bracketed instructions
     /\*\*.*?\*\*/g, // Remove any bold markdown
-    /\*.*?\*/g, // Remove any italic markdown
     /FOCUS:.*$/gmi, // Remove any focus instructions
     /CURRENT.*?:.*$/gmi, // Remove any current phase indicators
+    /\*warm tone\*/gi, // Specifically target *warm tone*
+    /\*conversational\*/gi, // Remove *conversational*
+    /\*friendly\*/gi, // Remove *friendly*
   ];
   
   let cleaned = text;
