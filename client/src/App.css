@@ -1,6 +1,7 @@
 /* ========================================
    GrowEasy Chat Interface - Clean Modern Design
    WhatsApp-inspired professional UI
+   Last Updated: 2024-12-25 - Clean white theme v2.0
    ======================================== */
 
 /* CSS Custom Properties for clean theming */
@@ -63,8 +64,13 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-main);
+  background: var(--bg-main) !important;
   position: relative;
+}
+
+/* Force white backgrounds */
+.chat-container {
+  background: var(--bg-chat) !important;
 }
 
 /* ========================================
@@ -163,7 +169,7 @@ body {
 .chat-container {
   flex: 1;
   overflow: hidden;
-  background: var(--bg-chat);
+  background: var(--bg-chat) !important;
   position: relative;
 }
 
