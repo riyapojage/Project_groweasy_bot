@@ -70,6 +70,8 @@ exports.handler = async (event, context) => {
     
     // Use transcript from client, or initialize empty if not provided
     transcript = clientTranscript;
+    console.log(`📥 Received transcript with ${transcript.length} messages`);
+    console.log(`📥 Last 3 messages:`, transcript.slice(-3));
 
     // Validate input
     if (!message || typeof message !== 'string') {
@@ -97,13 +99,23 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Add user message to transcript
-    const userMessage = {
-      role: 'user',
-      content: trimmedMessage,
-      timestamp: new Date().toISOString()
-    };
-    transcript.push(userMessage);
+    // Add user message to transcript only if not already included
+    const lastMessage = transcript[transcript.length - 1];
+    const messageAlreadyExists = lastMessage && 
+                                 lastMessage.role === 'user' && 
+                                 lastMessage.content === trimmedMessage;
+    
+    if (!messageAlreadyExists) {
+      const userMessage = {
+        role: 'user',
+        content: trimmedMessage,
+        timestamp: new Date().toISOString()
+      };
+      transcript.push(userMessage);
+      console.log('📝 Added new user message to transcript');
+    } else {
+      console.log('📝 User message already exists in transcript, skipping duplicate');
+    }
 
     // Get questions from business profile
     const questions = businessProfile.questions || [];
