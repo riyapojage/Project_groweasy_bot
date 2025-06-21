@@ -4,12 +4,18 @@
    Last Updated: 2024-12-25 - Clean white theme v2.0
    ======================================== */
 
+/* AGGRESSIVE CSS RESET TO FORCE WHITE THEME */
+html, body, #root, .app, .chat-container, .messages-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
 /* CSS Custom Properties for clean theming */
 :root {
   /* Modern clean colors */
-  --bg-main: #f8fafb;
-  --bg-chat: #ffffff;
-  --bg-header: #ffffff;
+  --bg-main: #f8fafb !important;
+  --bg-chat: #ffffff !important;
+  --bg-header: #ffffff !important;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
@@ -52,7 +58,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--bg-main);
+  background-color: var(--bg-main) !important;
+  background: var(--bg-main) !important;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -65,12 +72,14 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg-main) !important;
+  background-color: var(--bg-main) !important;
   position: relative;
 }
 
 /* Force white backgrounds */
 .chat-container {
-  background: var(--bg-chat) !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 /* ========================================
@@ -169,7 +178,8 @@ body {
 .chat-container {
   flex: 1;
   overflow: hidden;
-  background: var(--bg-chat) !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   position: relative;
 }
 
@@ -180,6 +190,8 @@ body {
   max-width: 800px;
   margin: 0 auto;
   scroll-behavior: smooth;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 /* Modern scrollbar */
