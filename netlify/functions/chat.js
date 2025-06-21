@@ -231,8 +231,7 @@ exports.handler = async (event, context) => {
       const lastQuestionIndex = userMessages - 1; // Index of the question we just answered
       const lastQuestion = questions[lastQuestionIndex];
       
-      // If we just received an answer and there's an acknowledgment, send it first
-      // We should send acknowledgment if: assistant messages == user messages (no ack sent yet)
+      // If we need to send acknowledgment + next question together
       if (lastQuestion && lastQuestion.acknowledgment && assistantMessages === userMessages) {
         let acknowledgmentText = lastQuestion.acknowledgment.replace('{answer}', trimmedMessage);
         
@@ -243,22 +242,69 @@ exports.handler = async (event, context) => {
           timestamp: new Date().toISOString()
         });
         
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
+        // IMMEDIATELY ask the next question in the same response
+        const nextQuestionIndex = userMessages;
+        const nextQuestion = questions[nextQuestionIndex];
+        
+        if (nextQuestion) {
+          const questionText = nextQuestion.text;
+          
+          // Add next question to transcript
+          transcript.push({
+            role: 'assistant',
+            content: questionText,
+            timestamp: new Date().toISOString()
+          });
+          
+          console.log(`🤖 Sent acknowledgment + question ${nextQuestionIndex + 1}/${totalQuestions}: ${nextQuestion.id}`);
+          
+          // Combine acknowledgment + question in response
+          const combinedMessage = acknowledgmentText + "\n\n" + questionText;
+          
+          const response = {
             success: true,
-            reply: acknowledgmentText,
+            reply: combinedMessage,
             isComplete: false,
-            isAcknowledgment: true,
             progress: {
               questionsAnswered: userMessages,
               totalQuestions: totalQuestions,
-              currentQuestion: lastQuestion.id,
-              nextQuestionNumber: userMessages + 1
+              currentQuestion: nextQuestion.id,
+              nextQuestionNumber: nextQuestionIndex + 1
             }
-          })
-        };
+          };
+          
+          // Add interactive options for button-type questions
+          if (nextQuestion.type === 'buttons' && nextQuestion.options) {
+            response.options = nextQuestion.options;
+            response.questionType = 'buttons';
+          } else {
+            response.questionType = 'text';
+          }
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(response)
+          };
+        } else {
+          // No next question, just return acknowledgment
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              success: true,
+              reply: acknowledgmentText,
+              isComplete: false,
+              isAcknowledgment: true,
+              progress: {
+                questionsAnswered: userMessages,
+                totalQuestions: totalQuestions,
+                currentQuestion: lastQuestion.id,
+                nextQuestionNumber: userMessages + 1
+              }
+            })
+          };
+        }
       }
       
       // Ask the next question
