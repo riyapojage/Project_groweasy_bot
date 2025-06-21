@@ -1,12 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { 
-  buildConversationPrompt, 
-  buildAdvancedClassificationPrompt, 
-  buildNaturalConversationPrompt,
-  loadBusinessProfile,
-  analyzeConversationDepth,
-  determineConversationPhase
-} = require('./utils/promptBuilder.js');
+const { loadBusinessProfile, buildClassificationPrompt } = require('./utils/promptBuilder.js');
 
 // In-memory transcript storage (in production, use a database)
 let transcript = [];
@@ -31,10 +24,6 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const anthropic = new Anthropic({
-    apiKey: process.env.CLAUDE_API_KEY,
-  });
-
   // Load business profile
   let businessProfile;
   try {
@@ -44,15 +33,15 @@ exports.handler = async (event, context) => {
     businessProfile = {
       companyName: "GrowEasy Real Estate",
       industry: "Real Estate",
-      targetAudience: "Property buyers and sellers",
-      qualificationCriteria: {
-        budget: "Must have budget information",
-        timeline: "Must have timeline for purchase/sale",
-        location: "Must specify preferred location",
-        propertyType: "Must indicate property type interest"
-      }
+      questions: [
+        { id: "location", text: "Hi! I'm here to help you find your perfect property. Which city/area are you looking to buy in?", required: true },
+        { id: "property_type", text: "What type of property are you interested in? (1BHK, 2BHK, 3BHK, villa, etc.)", required: true },
+        { id: "budget", text: "What's your budget range for this property?", required: true },
+        { id: "timeline", text: "When are you planning to make this purchase?", required: true }
+      ]
     };
   }
+
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -105,18 +94,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    if (trimmedMessage.length > 1000) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          error: 'Message is too long (max 1000 characters)',
-          code: 'MESSAGE_TOO_LONG'
-        })
-      };
-    }
-
     // Add user message to transcript
     const userMessage = {
       role: 'user',
@@ -125,67 +102,28 @@ exports.handler = async (event, context) => {
     };
     transcript.push(userMessage);
 
-    // Build conversation prompt using the new natural system
-    const conversationPrompt = buildNaturalConversationPrompt(transcript, businessProfile);
-
-    // Get Claude's response
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 300, // Reduced from 1000 to encourage shorter responses
-      messages: [
-        {
-          role: 'user',
-          content: conversationPrompt
-        }
-      ],
-      temperature: 0.7
-    });
-
-    if (!response || !response.content || !response.content[0]) {
-      throw new Error('Invalid response from Claude');
-    }
-
-    let claudeReply = response.content[0].text.trim();
+    // Get questions from business profile
+    const questions = businessProfile.questions || [];
+    const totalQuestions = questions.length;
     
-    // Filter out any backend/instructional text that might leak through
-    claudeReply = cleanResponseText(claudeReply);
+    // Count user messages to track progress
+    const userMessages = transcript.filter(msg => msg.role === 'user').length;
+    const assistantMessages = transcript.filter(msg => msg.role === 'assistant').length;
+    
+    console.log(`❓ Questions answered: ${userMessages}/${totalQuestions}`);
+    console.log(`📊 Transcript: ${userMessages} user messages, ${assistantMessages} assistant messages`);
 
-    // Add Claude's response to transcript
-    const assistantMessage = {
-      role: 'assistant',
-      content: claudeReply,
-      timestamp: new Date().toISOString()
-    };
-    transcript.push(assistantMessage);
-
-    // Check if conversation should end - only after gathering all criteria
-    const shouldClassify = checkIfAllCriteriaGathered(transcript, businessProfile) ||
-                          transcript.length >= 16 || // Allow more exchanges
-                          claudeReply.toLowerCase().includes('thank') ||
-                          claudeReply.toLowerCase().includes('contact') ||
-                          claudeReply.toLowerCase().includes('wrap up');
-
-    // Helper function to check if all criteria are gathered
-    function checkIfAllCriteriaGathered(transcript, businessProfile) {
-      const conversationText = transcript.map(msg => msg.content).join(' ').toLowerCase();
-      const criteria = Object.keys(businessProfile.qualificationCriteria);
+    // Check if all questions have been answered
+    if (userMessages >= totalQuestions) {
+      // Time to classify the lead
+      console.log('🎯 All questions answered, classifying lead...');
       
-      // Check if conversation contains information about each criterion
-      const hasBudget = /budget|price|cost|money|lakh|crore|rupee|₹|\$/.test(conversationText);
-      const hasTimeline = /timeline|time|month|year|soon|urgent|when|by/.test(conversationText);
-      const hasLocation = /location|area|city|place|where/.test(conversationText);
-      const hasPropertyType = /apartment|villa|house|flat|bhk|commercial|office|shop/.test(conversationText);
-      
-      // Only classify if we have at least 3 out of 4 criteria or conversation is long enough
-      const criteriaCount = [hasBudget, hasTimeline, hasLocation, hasPropertyType].filter(Boolean).length;
-      return criteriaCount >= 3 || transcript.length >= 12;
-    }
-
-    let classification = null;
-    let isComplete = false;
-
-    if (shouldClassify) {
+      let classification = null;
       try {
+        const anthropic = new Anthropic({
+          apiKey: process.env.CLAUDE_API_KEY,
+        });
+
         const classificationPrompt = buildClassificationPrompt(transcript, businessProfile);
         
         const classificationResponse = await anthropic.messages.create({
@@ -207,28 +145,101 @@ exports.handler = async (event, context) => {
           const jsonMatch = classificationText.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             classification = JSON.parse(jsonMatch[0]);
-            isComplete = true;
-            
             console.log(`📊 Lead classified as: ${classification.status} (confidence: ${classification.confidence})`);
           }
         }
       } catch (classError) {
         console.error('❌ Classification error:', classError);
-        // Continue without classification
+        classification = {
+          status: 'error',
+          confidence: 0,
+          reasoning: 'Classification failed'
+        };
       }
+      
+      // Final message based on classification
+      let finalMessage = "Thank you for providing all the information! Our team will review your requirements and get back to you soon.";
+      
+      if (classification) {
+        const status = classification.status;
+        if (status === 'hot') {
+          finalMessage = "Excellent! You seem like a serious buyer. Our senior consultant will contact you within 24 hours with the best properties matching your needs.";
+        } else if (status === 'warm') {
+          finalMessage = "Thank you for your interest! We'll send you some property options that match your criteria and keep you updated with new listings.";
+        } else if (status === 'cold') {
+          finalMessage = "Thanks for sharing your requirements. We'll add you to our newsletter and keep you updated with properties in your range.";
+        }
+      }
+      
+      // Add final message to transcript
+      transcript.push({
+        role: 'assistant',
+        content: finalMessage,
+        timestamp: new Date().toISOString()
+      });
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          reply: finalMessage,
+          isComplete: true,
+          classification: classification,
+          metadata: {
+            totalQuestions: totalQuestions,
+            questionsAnswered: userMessages
+          }
+        })
+      };
+      
+    } else {
+      // Ask the next question
+      const nextQuestionIndex = assistantMessages; // Assistant messages count = next question index
+      const nextQuestion = questions[nextQuestionIndex];
+      
+      if (!nextQuestion) {
+        console.log(`❌ No question found at index ${nextQuestionIndex}`);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            reply: "Thank you for your time!",
+            isComplete: true
+          })
+        };
+      }
+      
+      // Use the question text directly - no Claude involved for questions
+      const questionText = nextQuestion.text;
+      
+      // Add question to transcript
+      transcript.push({
+        role: 'assistant',
+        content: questionText,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`🤖 Asked question ${nextQuestionIndex + 1}/${totalQuestions}: ${nextQuestion.id}`);
+      console.log(`📝 Question: "${questionText}"`);
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          reply: questionText,
+          isComplete: false,
+          progress: {
+            questionsAnswered: userMessages,
+            totalQuestions: totalQuestions,
+            currentQuestion: nextQuestion.id,
+            nextQuestionNumber: nextQuestionIndex + 1
+          }
+        })
+      };
     }
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        reply: claudeReply,
-        isComplete,
-        classification,
-        transcriptLength: transcript.length
-      })
-    };
 
   } catch (error) {
     console.error('❌ Chat error:', error);
@@ -264,49 +275,4 @@ exports.handler = async (event, context) => {
       })
     };
   }
-};
-
-// Clean response text to remove any backend/instructional content
-function cleanResponseText(text) {
-  // Remove common backend phrases that might leak through
-  const backendPhrases = [
-    /\*[^*]*\*/g, // Remove ALL text between asterisks like *warm tone* and *Note: ...*
-    /Note:.*?$/gmi, // Remove Note: lines
-    /The question is contextualized and open-ended.*$/gi,
-    /encouraging them to share more about their circumstances\.?$/gi,
-    /\[.*?\]/g, // Remove any bracketed instructions
-    /\*\*.*?\*\*/g, // Remove any bold markdown
-    /FOCUS:.*$/gmi, // Remove any focus instructions
-    /CURRENT.*?:.*$/gmi, // Remove any current phase indicators
-    /\*warm tone\*/gi, // Specifically target *warm tone*
-    /\*conversational\*/gi, // Remove *conversational*
-    /\*friendly\*/gi, // Remove *friendly*
-  ];
-  
-  let cleaned = text;
-  backendPhrases.forEach(phrase => {
-    cleaned = cleaned.replace(phrase, '').trim();
-  });
-  
-  // Remove any double spaces and clean up
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
-  
-  // If the response is too long, truncate to a reasonable length
-  if (cleaned.length > 300) {
-    // Find the last complete sentence within 300 characters
-    const truncated = cleaned.substring(0, 300);
-    const lastPeriod = truncated.lastIndexOf('.');
-    const lastQuestion = truncated.lastIndexOf('?');
-    const lastExclamation = truncated.lastIndexOf('!');
-    
-    const lastSentenceEnd = Math.max(lastPeriod, lastQuestion, lastExclamation);
-    
-    if (lastSentenceEnd > 200) {
-      cleaned = truncated.substring(0, lastSentenceEnd + 1);
-    } else {
-      cleaned = truncated + '...';
-    }
-  }
-  
-  return cleaned;
-} 
+}; 

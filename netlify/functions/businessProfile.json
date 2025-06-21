@@ -1,176 +1,30 @@
 {
-  "industry": "real_estate",
-  "businessName": "GrowEasy Real Estate",
   "companyName": "GrowEasy Real Estate",
+  "industry": "Real Estate", 
   "description": "Lead qualification chatbot for real estate inquiries",
-  "agentPersona": {
-    "name": "Priya",
-    "role": "Senior Property Consultant",
-    "experience": "8+ years helping families find perfect homes",
-    "specialization": "Residential properties, investment advisory, market analysis",
-    "personality": "Warm, knowledgeable, genuinely helpful",
-    "responseStyle": {
-      "length": "short",
-      "maxSentences": 3,
-      "tone": "conversational",
-      "approach": "one question at a time"
-    }
-  },
-  "greeting": "Hi! I'm Priya from GrowEasy Real Estate. I've been helping families find their perfect homes in India for over 8 years. What brings you to property search today?",
   
-  "conversationFlow": {
-    "discovery": {
-      "purpose": "Understand the WHY behind their property search",
-      "prompts": [
-        "What's driving your property search right now? (First home, upgrade, investment, family expansion?)",
-        "Tell me about your current living situation - what's working and what isn't?",
-        "Who all will be living in this new property? Any specific needs for kids, elderly parents, pets?"
-      ]
-    },
-    "lifestyle": {
-      "purpose": "Match properties to their actual lifestyle",
-      "prompts": [
-        "What does your typical day look like? Do you work from home, commute daily?",
-        "What amenities are absolute must-haves vs nice-to-haves?",
-        "Any hobbies or interests that need space consideration?"
-      ]
-    },
-    "market_education": {
-      "purpose": "Provide value through market insights",
-      "prompts": [
-        "Based on your location preference, let me share current market trends...",
-        "Here are some investment perspectives for your budget range...",
-        "Common mistakes I see buyers make in this segment..."
-      ]
-    }
-  },
-
   "questions": [
     {
-      "id": "motivation",
-      "text": "What's the main reason you're looking to buy property right now?",
-      "type": "open_ended",
-      "required": true,
-      "follow_up_strategy": "empathetic_validation_and_market_insight"
+      "id": "location",
+      "text": "Hi! I'm here to help you find your perfect property. Which city/area are you looking to buy in?",
+      "required": true
     },
     {
-      "id": "location_detailed",
-      "text": "Which specific areas are you considering, and what draws you to those locations?",
-      "type": "open_ended", 
-      "required": true,
-      "follow_up_strategy": "local_market_analysis_and_alternatives"
+      "id": "property_type", 
+      "text": "What type of property are you interested in? (1BHK, 2BHK, 3BHK, villa, etc.)",
+      "required": true
     },
     {
-      "id": "lifestyle_needs",
-      "text": "Tell me about your family situation and any specific requirements for the property",
-      "type": "open_ended",
-      "required": true,
-      "follow_up_strategy": "lifestyle_matching_suggestions"
+      "id": "budget",
+      "text": "What's your budget range for this property?",
+      "required": true
     },
     {
-      "id": "budget_context",
-      "text": "What's your comfortable budget range, and have you considered financing options?",
-      "type": "open_ended",
-      "required": true,
-      "follow_up_strategy": "financial_advisory_and_options"
-    },
-    {
-      "id": "decision_timeline",
-      "text": "What's your ideal timeline, and what factors might influence your decision speed?",
-      "type": "open_ended",
-      "required": true,
-      "follow_up_strategy": "urgency_assessment_and_market_timing"
-    },
-    {
-      "id": "past_experience",
-      "text": "Have you bought property before? Any concerns or past experiences shaping your current search?",
-      "type": "open_ended",
-      "required": false,
-      "follow_up_strategy": "experience_based_guidance"
+      "id": "timeline",
+      "text": "When are you planning to make this purchase?",
+      "required": true
     }
   ],
-
-  "market_intelligence": {
-    "locations": {
-      "mumbai": {
-        "trending_areas": ["Thane", "Navi Mumbai", "Powai"],
-        "price_trends": "15-20% growth in suburbs, stable in central areas",
-        "investment_outlook": "Strong rental yields in IT corridors",
-        "common_concerns": "Traffic, space constraints, high prices"
-      },
-      "bangalore": {
-        "trending_areas": ["Whitefield", "Electronic City", "Sarjapur"],
-        "price_trends": "Tech corridor appreciation 12-18% annually",
-        "investment_outlook": "Excellent for IT professionals",
-        "common_concerns": "Traffic, water scarcity, infrastructure"
-      },
-      "delhi": {
-        "trending_areas": ["Gurgaon", "Noida", "Faridabad"],
-        "price_trends": "NCR showing steady 8-12% growth",
-        "investment_outlook": "Metro connectivity driving values",
-        "common_concerns": "Air quality, traffic, high maintenance"
-      },
-      "pune": {
-        "trending_areas": ["Hinjewadi", "Kharadi", "Wagholi"],
-        "price_trends": "IT belt seeing 10-15% appreciation",
-        "investment_outlook": "Good for young professionals",
-        "common_concerns": "Monsoon issues, traffic"
-      }
-    }
-  },
-
-  "enhanced_classification": {
-    "hot_premium": {
-      "criteria": "High budget + immediate timeline + clear motivation + decision authority",
-      "budget_min": 100,
-      "timeline_max": 2,
-      "indicators": ["pre-approved loan", "sold previous property", "job relocation", "family expansion", "cash ready"],
-      "response_strategy": "VIP treatment, senior consultant, priority viewing",
-      "follow_up": "Within 2 hours, property portfolio, market report"
-    },
-    "hot_standard": {
-      "criteria": "Good budget + near-term timeline + serious intent",
-      "budget_min": 50,
-      "timeline_max": 6,
-      "indicators": ["actively searching", "visited properties", "comparing options", "family involved"],
-      "response_strategy": "Dedicated consultant, curated options",
-      "follow_up": "Within 24 hours, tailored recommendations"
-    },
-    "warm_nurture": {
-      "criteria": "Moderate budget + flexible timeline + genuine interest",
-      "budget_min": 25,
-      "timeline_max": 12,
-      "indicators": ["first-time buyer", "saving up", "exploring options", "learning market"],
-      "response_strategy": "Educational content, market updates, relationship building",
-      "follow_up": "Weekly market insights, monthly check-ins"
-    },
-    "cold_long_term": {
-      "criteria": "Lower budget OR distant timeline but genuine interest",
-      "indicators": ["just started looking", "2+ years timeline", "budget constraints", "market research"],
-      "response_strategy": "Newsletter, investment education, long-term relationship",
-      "follow_up": "Monthly market reports, quarterly check-ins"
-    },
-    "invalid_spam": {
-      "criteria": "Unclear responses, unrealistic expectations, time-wasters",
-      "indicators": ["inconsistent answers", "extremely low budget", "no clear timeline", "spam patterns"],
-      "response_strategy": "Polite closure, no follow-up",
-      "follow_up": "None"
-    }
-  },
-
-  "claude_instructions": {
-    "personality": "Act as Priya, an experienced real estate consultant who genuinely cares about finding the right property for each client. Be knowledgeable but not pushy, insightful but not overwhelming.",
-    "conversation_style": "Natural, consultative, value-driven. Ask follow-up questions that show expertise. Provide market insights that demonstrate knowledge.",
-    "market_knowledge": "Reference current market trends, investment perspectives, and location-specific insights. Show deep understanding of Indian real estate.",
-    "objection_handling": "Address concerns proactively. If budget seems tight, suggest alternatives. If timeline is distant, focus on education and relationship building.",
-    "value_delivery": "In every response, provide at least one piece of valuable information - market insight, tip, or perspective they might not have considered."
-  },
-
-  "advanced_prompts": {
-    "conversation_prompt": "You are Priya, a senior real estate consultant with 8+ years experience in Indian markets. Your goal is to have a natural, consultative conversation that builds trust while gathering deep insights about the client's property needs. Provide genuine value in every response through market insights, tips, or perspectives. Be empathetic and knowledgeable, not pushy or robotic.",
-    
-    "classification_prompt": "Analyze this real estate conversation transcript to classify the lead quality. Consider not just budget and timeline, but also motivation clarity, decision authority, engagement level, and genuine intent. Provide detailed reasoning including psychological and behavioral indicators. Rate confidence and suggest specific follow-up strategy."
-  },
 
   "rules": {
     "hot": {
@@ -179,6 +33,13 @@
       "description": "High-budget leads with immediate timeline",
       "keywords": ["immediately", "urgent", "ready to buy", "cash ready", "pre-approved"],
       "conditions": "budget >= 50 lakhs AND timeline <= 3 months"
+    },
+    "warm": {
+      "budgetMinLakhs": 25,
+      "timelineMaxMonths": 6,
+      "description": "Medium-budget leads with reasonable timeline",
+      "keywords": ["serious", "looking", "interested", "considering"],
+      "conditions": "budget >= 25 lakhs AND timeline <= 6 months"
     },
     "cold": {
       "keywords": ["just browsing", "not sure", "maybe next year", "just exploring", "no hurry"],
@@ -192,33 +53,5 @@
       "description": "Invalid or spam leads",
       "conditions": "incomplete answers OR contains spam keywords"
     }
-  },
-
-  "classification": {
-    "hot": {
-      "priority": "high",
-      "followUpHours": 1,
-      "assignTo": "senior_agent",
-      "message": "Excellent! You seem like a serious buyer. Let me connect you with our senior property consultant who can show you the best options in your budget and timeline."
-    },
-    "cold": {
-      "priority": "low", 
-      "followUpHours": 72,
-      "assignTo": "junior_agent",
-      "message": "Thank you for your interest! I'll add you to our newsletter and keep you updated with new properties that match your criteria."
-    },
-    "invalid": {
-      "priority": "none",
-      "followUpHours": 0,
-      "assignTo": null,
-      "message": "Thank you for your time. Please feel free to reach out when you're ready to seriously explore property options."
-    }
-  },
-
-  "metadata": {
-    "version": "1.0",
-    "lastUpdated": "2025-06-15",
-    "createdBy": "GrowEasy Team",
-    "industry_keywords": ["property", "real estate", "buy", "investment", "home", "apartment", "villa"]
   }
 } 
