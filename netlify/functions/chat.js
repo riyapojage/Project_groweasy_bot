@@ -119,6 +119,14 @@ exports.handler = async (event, context) => {
 
     // Get questions from business profile
     const questions = businessProfile.questions || [];
+    
+    // SAFETY CHECK: If no questions loaded, use hardcoded fallback
+    if (questions.length === 0) {
+      console.log('⚠️ No questions found in business profile! Using fallback.');
+      questions.push(
+        { id: "location", text: "🏠 **Which city/area are you looking to buy in?**", type: "text", required: true, acknowledgment: "Great choice! Let's find the perfect property in {answer}. 🎯" }
+      );
+    }
     const totalQuestions = questions.length;
     
     // Count user messages to track progress
@@ -129,12 +137,15 @@ exports.handler = async (event, context) => {
     console.log(`📊 Transcript: ${userMessages} user messages, ${assistantMessages} assistant messages`);
     console.log(`🔍 Total questions in profile: ${questions.length}`);
     console.log(`🔍 Questions array:`, questions.map(q => q.id));
+    console.log(`🔍 Business profile loaded:`, !!businessProfile);
+    console.log(`🔍 totalQuestions value:`, totalQuestions, typeof totalQuestions);
 
     // Check if all questions have been answered
     console.log(`🔍 Checking condition: ${userMessages} >= ${totalQuestions} = ${userMessages >= totalQuestions}`);
     
     // Only classify after we have answers to ALL 4 questions
-    if (userMessages > totalQuestions) {
+    // TEMPORARY DEBUG: Force this to always be false for testing
+    if (false && userMessages > totalQuestions) {
       // Time to classify the lead
       console.log('🎯 All questions answered, classifying lead...');
       
