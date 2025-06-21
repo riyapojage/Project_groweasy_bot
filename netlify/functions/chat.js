@@ -120,11 +120,14 @@ exports.handler = async (event, context) => {
     // Get questions from business profile
     const questions = businessProfile.questions || [];
     
-    // SAFETY CHECK: If no questions loaded, use hardcoded fallback
+    // SAFETY CHECK: If no questions loaded, use hardcoded fallback with ALL 4 questions
     if (questions.length === 0) {
       console.log('⚠️ No questions found in business profile! Using fallback.');
       questions.push(
-        { id: "location", text: "🏠 **Which city/area are you looking to buy in?**", type: "text", required: true, acknowledgment: "Great choice! Let's find the perfect property in {answer}. 🎯" }
+        { id: "location", text: "🏠 **Which city/area are you looking to buy in?**", type: "text", required: true, acknowledgment: "Great choice! Let's find the perfect property in {answer}. 🎯" },
+        { id: "property_type", text: "🏡 **What type of property interests you?**", type: "buttons", required: true, options: ["1BHK Apartment", "2BHK Apartment", "3BHK Apartment", "4BHK+ Apartment", "Villa/Independent House", "Plot/Land", "Commercial Space"], acknowledgment: "Perfect! {answer} is a popular choice. 👍" },
+        { id: "budget", text: "💰 **What's your budget range?**", type: "buttons", required: true, options: ["Under ₹25 Lakhs", "₹25-50 Lakhs", "₹50 Lakhs - ₹1 Crore", "₹1-2 Crores", "₹2+ Crores", "Flexible/Discuss"], acknowledgment: "Excellent! We have great options in the {answer} range. 💎" },
+        { id: "timeline", text: "⏰ **When are you planning to make this purchase?**", type: "buttons", required: true, options: ["Immediately (within 1 month)", "1-3 months", "3-6 months", "6-12 months", "More than 1 year", "Just exploring options"], acknowledgment: "Thanks! Your timeline of {answer} helps us prioritize the best properties for you. ⚡" }
       );
     }
     const totalQuestions = questions.length;
@@ -144,8 +147,7 @@ exports.handler = async (event, context) => {
     console.log(`🔍 Checking condition: ${userMessages} >= ${totalQuestions} = ${userMessages >= totalQuestions}`);
     
     // Only classify after we have answers to ALL 4 questions
-    // TEMPORARY DEBUG: Force this to always be false for testing
-    if (false && userMessages > totalQuestions) {
+    if (userMessages >= totalQuestions) {
       // Time to classify the lead
       console.log('🎯 All questions answered, classifying lead...');
       
