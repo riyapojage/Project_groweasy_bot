@@ -77,7 +77,10 @@ const App = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ message: userMessage.content }),
+          body: JSON.stringify({ 
+            message: userMessage.content,
+            transcript: messages // Send full conversation history
+          }),
           signal: controller.signal
         });
         

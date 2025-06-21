@@ -66,7 +66,10 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { message } = JSON.parse(event.body);
+    const { message, transcript: clientTranscript = [] } = JSON.parse(event.body);
+    
+    // Use transcript from client, or initialize empty if not provided
+    transcript = clientTranscript;
 
     // Validate input
     if (!message || typeof message !== 'string') {
