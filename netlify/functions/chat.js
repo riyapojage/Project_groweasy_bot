@@ -112,9 +112,14 @@ exports.handler = async (event, context) => {
     
     console.log(`❓ Questions answered: ${userMessages}/${totalQuestions}`);
     console.log(`📊 Transcript: ${userMessages} user messages, ${assistantMessages} assistant messages`);
+    console.log(`🔍 Total questions in profile: ${questions.length}`);
+    console.log(`🔍 Questions array:`, questions.map(q => q.id));
 
     // Check if all questions have been answered
-    if (userMessages >= totalQuestions) {
+    console.log(`🔍 Checking condition: ${userMessages} >= ${totalQuestions} = ${userMessages >= totalQuestions}`);
+    
+    // Only classify after we have answers to ALL 4 questions
+    if (userMessages > totalQuestions) {
       // Time to classify the lead
       console.log('🎯 All questions answered, classifying lead...');
       
