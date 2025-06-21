@@ -250,18 +250,23 @@ const App = () => {
       <div className="chat-header">
         <div className="header-content">
           <div className="header-info">
-            <h1 className="header-title">GrowEasy Real Estate</h1>
-            <p className="header-subtitle">AI Property Assistant</p>
+            <div className="header-icon">
+              🏠
+            </div>
+            <div className="header-text">
+              <h1 className="header-title">GrowEasy Real Estate</h1>
+              <p className="header-subtitle">
+                <span className="status-dot"></span>
+                AI Property Assistant
+              </p>
+            </div>
           </div>
           <button 
             onClick={resetConversation}
             className="reset-button"
             title="Start New Conversation"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="1 4 1 10 7 10"></polyline>
-              <path d="m1 10 6-6a9 9 0 0 1 13 1"></path>
-            </svg>
+            ↻
           </button>
         </div>
       </div>
@@ -338,15 +343,15 @@ const App = () => {
       {/* Input Container */}
       <div className="input-container">
         <div className="input-wrapper">
-          <input
+          <textarea
             ref={inputRef}
-            type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
             className="message-input"
             disabled={isLoading || isConversationComplete}
+            rows={1}
           />
           <button
             onClick={sendMessage}
@@ -356,10 +361,7 @@ const App = () => {
             {isLoading ? (
               <div className="loading-spinner"></div>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22,2 15,22 11,13 2,9"></polygon>
-              </svg>
+              "➤"
             )}
           </button>
         </div>
