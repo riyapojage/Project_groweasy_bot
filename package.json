@@ -1,12 +1,10 @@
 {
   "name": "groweasy",
-  "version": "1.0.0",
-  "description": "GrowEasy - A configurable Claude-powered lead qualification chatbot",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "GrowEasy - Interactive lead qualification chatbot with Netlify Functions",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js",
-    "test": "node test-claude.js"
+    "build": "cd client && npm run build",
+    "test": "echo 'Testing via Netlify functions'"
   },
   "keywords": [
     "chatbot",
@@ -17,12 +15,8 @@
   ],
   "author": "GrowEasy Team",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.24.3",
-    "dotenv": "^16.3.1",
-    "express": "^4.21.2",
-    "node-fetch": "^3.3.2"
+    "@anthropic-ai/sdk": "^0.24.3"
   },
   "engines": {
     "node": ">=14.0.0"

@@ -195,10 +195,12 @@ exports.handler = async (event, context) => {
       
     } else {
       // Check if we need to send acknowledgment first
-      const lastQuestion = questions[userMessages - 1];
+      const lastQuestionIndex = userMessages - 1; // Index of the question we just answered
+      const lastQuestion = questions[lastQuestionIndex];
       
       // If we just received an answer and there's an acknowledgment, send it first
-      if (lastQuestion && lastQuestion.acknowledgment && assistantMessages < userMessages * 2) {
+      // We should send acknowledgment if: assistant messages == user messages (no ack sent yet)
+      if (lastQuestion && lastQuestion.acknowledgment && assistantMessages === userMessages) {
         let acknowledgmentText = lastQuestion.acknowledgment.replace('{answer}', trimmedMessage);
         
         // Add acknowledgment to transcript
@@ -227,7 +229,9 @@ exports.handler = async (event, context) => {
       }
       
       // Ask the next question
-      const nextQuestionIndex = Math.floor(assistantMessages / 2); // Account for acknowledgments
+      // After sending acknowledgment, assistant messages = user messages + 1
+      // So next question index = user messages (since we've answered userMessages questions)
+      const nextQuestionIndex = userMessages;
       const nextQuestion = questions[nextQuestionIndex];
       
       if (!nextQuestion) {
@@ -262,7 +266,7 @@ exports.handler = async (event, context) => {
         reply: questionText,
         isComplete: false,
         progress: {
-          questionsAnswered: Math.floor(assistantMessages / 2),
+          questionsAnswered: userMessages,
           totalQuestions: totalQuestions,
           currentQuestion: nextQuestion.id,
           nextQuestionNumber: nextQuestionIndex + 1

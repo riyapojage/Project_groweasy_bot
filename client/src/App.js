@@ -7,7 +7,7 @@ const App = () => {
     {
       id: 1,
       role: 'assistant',
-      content: '🏠 **Hello!** I\'m here to help you find your perfect property. Let me ask you a few quick questions to understand your needs.',
+      content: '🏠 **Which city/area are you looking to buy in?**',
       timestamp: new Date().toISOString()
     }
   ]);
@@ -245,7 +245,7 @@ const App = () => {
         {
           id: 1,
           role: 'assistant',
-          content: '🏠 **Hello!** I\'m here to help you find your perfect property. Let me ask you a few quick questions to understand your needs.',
+          content: '🏠 **Which city/area are you looking to buy in?**',
           timestamp: new Date().toISOString()
         }
       ]);
