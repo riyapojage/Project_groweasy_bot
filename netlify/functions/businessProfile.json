@@ -6,23 +6,56 @@
   "questions": [
     {
       "id": "location",
-      "text": "Hi! I'm here to help you find your perfect property. Which city/area are you looking to buy in?",
-      "required": true
+      "text": "🏠 **Which city/area are you looking to buy in?**",
+      "type": "text",
+      "required": true,
+      "acknowledgment": "Great choice! Let's find the perfect property in {answer}. 🎯"
     },
     {
       "id": "property_type", 
-      "text": "What type of property are you interested in? (1BHK, 2BHK, 3BHK, villa, etc.)",
-      "required": true
+      "text": "🏡 **What type of property interests you?**",
+      "type": "buttons",
+      "required": true,
+      "options": [
+        "1BHK Apartment",
+        "2BHK Apartment", 
+        "3BHK Apartment",
+        "4BHK+ Apartment",
+        "Villa/Independent House",
+        "Plot/Land",
+        "Commercial Space"
+      ],
+      "acknowledgment": "Perfect! {answer} is a popular choice. 👍"
     },
     {
       "id": "budget",
-      "text": "What's your budget range for this property?",
-      "required": true
+      "text": "💰 **What's your budget range?**",
+      "type": "buttons",
+      "required": true,
+      "options": [
+        "Under ₹25 Lakhs",
+        "₹25-50 Lakhs",
+        "₹50 Lakhs - ₹1 Crore",
+        "₹1-2 Crores",
+        "₹2+ Crores",
+        "Flexible/Discuss"
+      ],
+      "acknowledgment": "Excellent! We have great options in the {answer} range. 💎"
     },
     {
       "id": "timeline",
-      "text": "When are you planning to make this purchase?",
-      "required": true
+      "text": "⏰ **When are you planning to make this purchase?**",
+      "type": "buttons",
+      "required": true,
+      "options": [
+        "Immediately (within 1 month)",
+        "1-3 months",
+        "3-6 months", 
+        "6-12 months",
+        "More than 1 year",
+        "Just exploring options"
+      ],
+      "acknowledgment": "Thanks! Your timeline of {answer} helps us prioritize the best properties for you. ⚡"
     }
   ],
 

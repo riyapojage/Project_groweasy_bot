@@ -7,7 +7,7 @@ const App = () => {
     {
       id: 1,
       role: 'assistant',
-      content: 'Hello! I\'m here to help you find your perfect property. Let me ask you a few quick questions to better understand your needs.',
+      content: '🏠 **Hello!** I\'m here to help you find your perfect property. Let me ask you a few quick questions to understand your needs.',
       timestamp: new Date().toISOString()
     }
   ]);
@@ -15,6 +15,8 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isConversationComplete, setIsConversationComplete] = useState(false);
   const [classification, setClassification] = useState(null);
+  const [currentOptions, setCurrentOptions] = useState(null);
+  const [currentQuestionType, setCurrentQuestionType] = useState('text');
 
   // Refs for smooth scrolling and input management
   const messagesEndRef = useRef(null);
@@ -38,19 +40,21 @@ const App = () => {
   }, []);
 
   // Send message to backend
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+  const sendMessage = async (messageText = null) => {
+    const messageToSend = messageText || inputMessage.trim();
+    if (!messageToSend || isLoading) return;
 
     const userMessage = {
       id: Date.now(),
       role: 'user',
-      content: inputMessage.trim(),
+      content: messageToSend,
       timestamp: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setCurrentOptions(null); // Hide options after selection
 
     try {
       // Validate message length before sending
@@ -123,6 +127,15 @@ const App = () => {
           
           setMessages(prev => [...prev, botMessage]);
           
+          // Handle interactive options
+          if (data.options && data.questionType === 'buttons') {
+            setCurrentOptions(data.options);
+            setCurrentQuestionType('buttons');
+          } else {
+            setCurrentOptions(null);
+            setCurrentQuestionType('text');
+          }
+          
           // Check if conversation is complete
           if (data.isComplete && data.classification) {
             setIsConversationComplete(true);
@@ -173,12 +186,24 @@ const App = () => {
     }
   };
 
+  // Handle button click for multiple choice options
+  const handleButtonClick = (option) => {
+    sendMessage(option);
+  };
+
   // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  // Format message content for better display
+  const formatMessageContent = (content) => {
+    // Convert **text** to bold
+    const formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return { __html: formattedContent };
   };
 
   // Reset conversation with enhanced error handling
@@ -220,12 +245,14 @@ const App = () => {
         {
           id: 1,
           role: 'assistant',
-          content: 'Hello! I\'m here to help you find your perfect property. Let me ask you a few quick questions to better understand your needs.',
+          content: '🏠 **Hello!** I\'m here to help you find your perfect property. Let me ask you a few quick questions to understand your needs.',
           timestamp: new Date().toISOString()
         }
       ]);
       setIsConversationComplete(false);
       setClassification(null);
+      setCurrentOptions(null);
+      setCurrentQuestionType('text');
       setInputMessage('');
       inputRef.current?.focus();
     } catch (error) {
@@ -283,9 +310,10 @@ const App = () => {
               }}
             >
               <div className={`message-bubble ${message.role}`}>
-                <div className="message-content">
-                  {message.content}
-                </div>
+                <div 
+                  className="message-content"
+                  dangerouslySetInnerHTML={formatMessageContent(message.content)}
+                />
                 <div className="message-time">
                   {new Date(message.timestamp).toLocaleTimeString([], { 
                     hour: '2-digit', 
@@ -295,6 +323,26 @@ const App = () => {
               </div>
             </div>
           ))}
+          
+          {/* Interactive Options Buttons */}
+          {currentOptions && currentQuestionType === 'buttons' && !isLoading && !isConversationComplete && (
+            <div className="options-container">
+              <div className="options-grid">
+                {currentOptions.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleButtonClick(option)}
+                    className="option-button"
+                    style={{
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Loading indicator */}
           {isLoading && (
@@ -313,7 +361,7 @@ const App = () => {
           {isConversationComplete && classification && (
             <div className="classification-result">
               <div className="classification-header">
-                <h3>Lead Classification</h3>
+                <h3>🎯 Lead Classification</h3>
               </div>
               <div className="classification-content">
                 <div className={`status-badge ${classification.status}`}>
@@ -348,13 +396,13 @@ const App = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
+            placeholder={currentQuestionType === 'buttons' ? "Choose an option above or type your response..." : "Type your message..."}
             className="message-input"
             disabled={isLoading || isConversationComplete}
             rows={1}
           />
           <button
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={!inputMessage.trim() || isLoading || isConversationComplete}
             className="send-button"
           >

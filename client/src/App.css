@@ -47,6 +47,13 @@ html, body, #root, .app, .chat-container, .messages-container {
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
+  
+  /* Button colors */
+  --button-primary: #3b82f6;
+  --button-primary-hover: #2563eb;
+  --button-secondary: #f8fafc;
+  --button-secondary-hover: #f1f5f9;
+  --button-border: #e2e8f0;
 }
 
 /* Reset and base styles */
@@ -600,5 +607,178 @@ body {
     --border-medium: #000000;
     --text-secondary: #000000;
     --text-muted: #333333;
+  }
+}
+
+/* ========================================
+   INTERACTIVE OPTIONS BUTTONS - Modern UI
+   ======================================== */
+.options-container {
+  margin: 1rem 0 0.5rem 0;
+  opacity: 0;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+  max-width: 600px;
+}
+
+.option-button {
+  background: var(--button-secondary);
+  border: 2px solid var(--button-border);
+  color: var(--text-primary);
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.925rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: optionFadeIn 0.4s ease-out forwards;
+  box-shadow: var(--shadow-subtle);
+}
+
+.option-button:hover {
+  background: var(--button-primary);
+  color: var(--user-text);
+  border-color: var(--button-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
+}
+
+.option-button:active {
+  transform: translateY(0px);
+  box-shadow: var(--shadow-subtle);
+}
+
+.option-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.option-button:hover::before {
+  left: 100%;
+}
+
+/* Enhanced message content formatting */
+.message-content strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.message-bubble.assistant .message-content strong {
+  color: var(--button-primary);
+}
+
+.message-bubble.user .message-content strong {
+  color: var(--user-text);
+}
+
+/* ========================================
+   ANIMATIONS FOR INTERACTIVE ELEMENTS
+   ======================================== */
+@keyframes optionFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   ENHANCED RESPONSIVE DESIGN FOR BUTTONS
+   ======================================== */
+@media (max-width: 768px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .option-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .options-container {
+    margin: 0.75rem 0 0.25rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .options-grid {
+    gap: 0.375rem;
+  }
+  
+  .option-button {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    border-radius: 10px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ======================================== */
+.option-button:focus-visible {
+  outline: 2px solid var(--button-primary);
+  outline-offset: 2px;
+  background: var(--button-secondary-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-button {
+    animation: none;
+    transform: none;
+  }
+  
+  .option-button:hover {
+    transform: none;
+  }
+  
+  .options-container {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .option-button {
+    border-width: 3px;
+    font-weight: 600;
+  }
+  
+  .option-button:hover {
+    border-color: var(--text-primary);
+    background: var(--text-primary);
   }
 }

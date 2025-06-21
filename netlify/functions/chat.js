@@ -34,10 +34,10 @@ exports.handler = async (event, context) => {
       companyName: "GrowEasy Real Estate",
       industry: "Real Estate",
       questions: [
-        { id: "location", text: "Hi! I'm here to help you find your perfect property. Which city/area are you looking to buy in?", required: true },
-        { id: "property_type", text: "What type of property are you interested in? (1BHK, 2BHK, 3BHK, villa, etc.)", required: true },
-        { id: "budget", text: "What's your budget range for this property?", required: true },
-        { id: "timeline", text: "When are you planning to make this purchase?", required: true }
+        { id: "location", text: "🏠 **Which city/area are you looking to buy in?**", type: "text", required: true, acknowledgment: "Great choice! Let's find the perfect property in {answer}. 🎯" },
+        { id: "property_type", text: "🏡 **What type of property interests you?**", type: "buttons", required: true, options: ["1BHK Apartment", "2BHK Apartment", "3BHK Apartment", "4BHK+ Apartment", "Villa/Independent House", "Plot/Land", "Commercial Space"], acknowledgment: "Perfect! {answer} is a popular choice. 👍" },
+        { id: "budget", text: "💰 **What's your budget range?**", type: "buttons", required: true, options: ["Under ₹25 Lakhs", "₹25-50 Lakhs", "₹50 Lakhs - ₹1 Crore", "₹1-2 Crores", "₹2+ Crores", "Flexible/Discuss"], acknowledgment: "Excellent! We have great options in the {answer} range. 💎" },
+        { id: "timeline", text: "⏰ **When are you planning to make this purchase?**", type: "buttons", required: true, options: ["Immediately (within 1 month)", "1-3 months", "3-6 months", "6-12 months", "More than 1 year", "Just exploring options"], acknowledgment: "Thanks! Your timeline of {answer} helps us prioritize the best properties for you. ⚡" }
       ]
     };
   }
@@ -157,17 +157,17 @@ exports.handler = async (event, context) => {
         };
       }
       
-      // Final message based on classification
-      let finalMessage = "Thank you for providing all the information! Our team will review your requirements and get back to you soon.";
+      // Enhanced final messages based on classification
+      let finalMessage = "🎉 **Thank you!** Our team will review your requirements and contact you soon.";
       
       if (classification) {
         const status = classification.status;
         if (status === 'hot') {
-          finalMessage = "Excellent! You seem like a serious buyer. Our senior consultant will contact you within 24 hours with the best properties matching your needs.";
+          finalMessage = "🔥 **Excellent!** You're a serious buyer. Our **senior consultant** will contact you within **24 hours** with premium properties.";
         } else if (status === 'warm') {
-          finalMessage = "Thank you for your interest! We'll send you some property options that match your criteria and keep you updated with new listings.";
+          finalMessage = "✨ **Perfect!** We'll send you **curated property options** and keep you updated with new listings.";
         } else if (status === 'cold') {
-          finalMessage = "Thanks for sharing your requirements. We'll add you to our newsletter and keep you updated with properties in your range.";
+          finalMessage = "📧 **Thanks!** We'll add you to our **newsletter** and update you with properties in your range.";
         }
       }
       
@@ -194,8 +194,40 @@ exports.handler = async (event, context) => {
       };
       
     } else {
+      // Check if we need to send acknowledgment first
+      const lastQuestion = questions[userMessages - 1];
+      
+      // If we just received an answer and there's an acknowledgment, send it first
+      if (lastQuestion && lastQuestion.acknowledgment && assistantMessages < userMessages * 2) {
+        let acknowledgmentText = lastQuestion.acknowledgment.replace('{answer}', trimmedMessage);
+        
+        // Add acknowledgment to transcript
+        transcript.push({
+          role: 'assistant',
+          content: acknowledgmentText,
+          timestamp: new Date().toISOString()
+        });
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            reply: acknowledgmentText,
+            isComplete: false,
+            isAcknowledgment: true,
+            progress: {
+              questionsAnswered: userMessages,
+              totalQuestions: totalQuestions,
+              currentQuestion: lastQuestion.id,
+              nextQuestionNumber: userMessages + 1
+            }
+          })
+        };
+      }
+      
       // Ask the next question
-      const nextQuestionIndex = assistantMessages; // Assistant messages count = next question index
+      const nextQuestionIndex = Math.floor(assistantMessages / 2); // Account for acknowledgments
       const nextQuestion = questions[nextQuestionIndex];
       
       if (!nextQuestion) {
@@ -205,7 +237,7 @@ exports.handler = async (event, context) => {
           headers,
           body: JSON.stringify({
             success: true,
-            reply: "Thank you for your time!",
+            reply: "🎉 **Thank you for your time!**",
             isComplete: true
           })
         };
@@ -224,20 +256,31 @@ exports.handler = async (event, context) => {
       console.log(`🤖 Asked question ${nextQuestionIndex + 1}/${totalQuestions}: ${nextQuestion.id}`);
       console.log(`📝 Question: "${questionText}"`);
       
+      // Build response with interactive options if available
+      const response = {
+        success: true,
+        reply: questionText,
+        isComplete: false,
+        progress: {
+          questionsAnswered: Math.floor(assistantMessages / 2),
+          totalQuestions: totalQuestions,
+          currentQuestion: nextQuestion.id,
+          nextQuestionNumber: nextQuestionIndex + 1
+        }
+      };
+      
+      // Add interactive options for button-type questions
+      if (nextQuestion.type === 'buttons' && nextQuestion.options) {
+        response.options = nextQuestion.options;
+        response.questionType = 'buttons';
+      } else {
+        response.questionType = 'text';
+      }
+      
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({
-          success: true,
-          reply: questionText,
-          isComplete: false,
-          progress: {
-            questionsAnswered: userMessages,
-            totalQuestions: totalQuestions,
-            currentQuestion: nextQuestion.id,
-            nextQuestionNumber: nextQuestionIndex + 1
-          }
-        })
+        body: JSON.stringify(response)
       };
     }
 
